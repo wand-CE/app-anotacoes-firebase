@@ -20,10 +20,7 @@ class _HomePageState extends State<HomePage> {
       DatabaseOperationsFirebase();
   final Future<List<dynamic>> _listaNotes = firebaseInstance.getNotes();
 
-  TextEditingController _createTarefaController = TextEditingController();
-
   List<dynamic> _idsAnotacoes = [];
-  List<bool> _tarefasStatus = [];
 
   void changeMessage(indexMessage, newMessage) {
     setState(() {
@@ -57,9 +54,7 @@ class _HomePageState extends State<HomePage> {
                     snapshot.connectionState == ConnectionState.done) {
                   return ListView.builder(
                     itemBuilder: (context, index) {
-                      //changeMessage();
-
-                      String id_anotacao = snapshot.data?[index]['id'];
+                      String idNote = snapshot.data?[index]['id'];
 
                       return Container(
                         margin: EdgeInsets.all(10),
@@ -81,7 +76,7 @@ class _HomePageState extends State<HomePage> {
                                 Navigator.of(context).pushReplacement(
                                   new MaterialPageRoute(
                                     builder: (context) => EditNotePage(
-                                      id_note: id_anotacao,
+                                      idNote: idNote,
                                     ),
                                   ),
                                 );
@@ -97,18 +92,17 @@ class _HomePageState extends State<HomePage> {
                                   context: context,
                                   builder: (BuildContext context) {
                                     return ShowAlertDialog(
-                                      title: Text('Excluir Nota'),
-                                      content: Text(
-                                        'Tem certeza que deseja excluir essa anotação?',
-                                      ),
-                                      yesAnswer: 'Sim',
-                                      alertAction: () {
-                                        firebaseInstance.removeAnotacao(
-                                          context,
-                                          id_anotacao,
-                                        );
-                                      },
-                                    );
+                                        title: Text('Excluir Nota'),
+                                        content: Text(
+                                          'Tem certeza que deseja excluir essa anotação?',
+                                        ),
+                                        yesAnswer: 'Sim',
+                                        alertAction: () async {
+                                          await firebaseInstance
+                                              .removeNote(idNote);
+                                          Navigator.pushReplacementNamed(
+                                              context, AppRoutes.homePage);
+                                        });
                                   },
                                 );
                               },

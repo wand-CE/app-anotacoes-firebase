@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,16 +6,6 @@ import '../../AppRoutes.dart';
 
 class DatabaseOperationsFirebase {
   final db = FirebaseFirestore.instance;
-
-  Future<void> editUserNameFirebase(String userId, String novoNome) async {
-    var collection = FirebaseFirestore.instance.collection('users');
-
-    collection.doc(userId).update({'nome': novoNome});
-  }
-
-  Future<void> deletePersonFirebase(String userId) async {
-    db.collection("users").doc(userId).delete();
-  }
 
   Future<void> createNewUserAcoount(
       context, String emailAddress, String password) async {
@@ -61,15 +49,21 @@ class DatabaseOperationsFirebase {
 
   Future<List<dynamic>> getNotes() async {
     List<Object> listNotes = [];
+    String id_user = '${FirebaseAuth.instance.currentUser!.uid}';
 
-    await db.collection("anotacoes").get().then((event) {
+    await db
+        .collection("anotacoes")
+        .where("id_user", isEqualTo: id_user)
+        .get()
+        .then((event) {
       for (var doc in event.docs) {
         Map<String, dynamic> dict_notes = doc.data();
         dict_notes['id'] = doc.id;
         listNotes.add(dict_notes);
       }
+    }).catchError((e) {
+      print('Got error: $e');
     });
-    print(listNotes);
 
     return listNotes;
   }
@@ -78,14 +72,11 @@ class DatabaseOperationsFirebase {
     await FirebaseAuth.instance.signOut();
   }
 
-  Future<void> removeAnotacao(context, String id_anotacao) async {
-    db
-        .collection("anotacoes")
-        .doc('$id_anotacao')
-        .delete(); // trocar id para string
+  Future<void> removeNote(String id_note) async {
+    db.collection("anotacoes").doc('$id_note').delete();
   }
 
-  Future<bool> addAnotacao(context, String noteTitle, String noteText) async {
+  Future<bool> addAnotacao(String noteTitle, String noteText) async {
     String id_user = '${FirebaseAuth.instance.currentUser!.uid}';
 
     final note = <String, dynamic>{
@@ -100,11 +91,29 @@ class DatabaseOperationsFirebase {
     return false;
   }
 
-  Future<Object> returnDataNote(context, id_anotacao) async {
-    List<dynamic> dados = [];
+  Future<bool> editAnotacao(
+      String id_note, String noteTitle, String noteText) async {
+    db.collection("anotacoes").doc(id_note).update({
+      "title": "$noteTitle",
+      "text": "$noteText",
+    });
 
-    print(db.collection("anotacoes").doc('$id_anotacao').get());
+    return true;
+  }
 
-    return dados;
+  Future<Map<String, dynamic>?> returnDataNote(String id_note) async {
+    try {
+      DocumentSnapshot currentDoc = await FirebaseFirestore.instance
+          .collection("anotacoes")
+          .doc(id_note)
+          .get();
+
+      return currentDoc.exists
+          ? currentDoc.data() as Map<String, dynamic>?
+          : null;
+    } catch (e) {
+      print('Erro ao obter documento: $e');
+      return null;
+    }
   }
 }

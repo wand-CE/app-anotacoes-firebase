@@ -12,8 +12,10 @@ class AddNotePage extends StatefulWidget {
 }
 
 class _NotePageState extends State<AddNotePage> {
-  TextEditingController _controller_note_title = TextEditingController();
-  TextEditingController _controller_note_text = TextEditingController();
+  TextEditingController _controllerNoteTitle = TextEditingController();
+  TextEditingController _controllerNoteText = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -32,67 +34,80 @@ class _NotePageState extends State<AddNotePage> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(15, 10, 10, 10),
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _controller_note_title,
-                  decoration: InputDecoration(
-                    label: const Text('Título'),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(
-                        color: Colors.green,
-                        width: 1,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 30,
-                ),
-                Card(
-                  child: TextFormField(
-                    controller: _controller_note_text,
-                    maxLines: 22,
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _controllerNoteTitle,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Campo título não pode estar vazio';
+                      }
+                    },
                     decoration: InputDecoration(
-                      label: const Text('Escreva sua anotação aqui'),
+                      label: const Text('Título'),
                       enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.grey),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderSide: const BorderSide(
-                          width: 1,
                           color: Colors.green,
+                          width: 1,
                         ),
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: 30,
+                  ),
+                  Card(
+                    child: TextFormField(
+                      controller: _controllerNoteText,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Campo texto não pode estar vazio';
+                        }
+                      },
+                      maxLines: 22,
+                      decoration: InputDecoration(
+                        label: const Text('Escreva sua anotação aqui'),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(
+                            width: 1,
+                            color: Colors.green,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           )
         ],
       ),
       floatingActionButton: TextButton(
         onPressed: () {
-          DatabaseOperationsFirebase().addAnotacao(
-            context,
-            _controller_note_title.text,
-            _controller_note_text.text,
-          );
-          print('ola');
-          Navigator.pushReplacementNamed(context, AppRoutes.homePage);
+          if (_formKey.currentState!.validate()) {
+            DatabaseOperationsFirebase().addAnotacao(
+              _controllerNoteTitle.text,
+              _controllerNoteText.text,
+            );
+            Navigator.pushReplacementNamed(context, AppRoutes.homePage);
+          }
         },
         style: ButtonStyle(
           backgroundColor: WidgetStatePropertyAll<Color>(Colors.green),
           foregroundColor: WidgetStatePropertyAll<Color>(Colors.white),
         ),
-        child: Text("Adicionar/Alterar"),
+        child: Text("Adicionar"),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

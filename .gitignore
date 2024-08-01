@@ -42,4 +42,47 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-*firebase_options.dart
+*firebase_option.dart
+
+# Flutter/Dart related
+**/build/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/App.framework
+**/ios/.symlinks/
+**/ios/Pods/
+**/ios/Runner.xcworkspace/
+**/ios/Runner.xcworkspace/xcuserdata/
+**/ios/Runner/Flutter.podspec
+**/ios/Runner.xcodeproj/xcuserdata/
+**/ios/Runner.xcodeproj/project.xcworkspace/
+**/ios/Flutter/App.framework/
+**/ios/Flutter/Flutter.framework/
+**/android/.gradle/
+**/android/app/build/
+**/android/app/release/
+**/android/build/
+**/android/release/
+**/test/
+
+.package
+.packages
+.pub-cache
+.pub
+build/
+
+# Firebase related
+firebase_app_id_file.json
+.firebase/
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+
+
+# VS Code related
+.vscode/
+.history/
+
+# User specific
+*.swo
+*~
+*.tmp
